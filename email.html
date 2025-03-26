@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Logs</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Email Logs</h1>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="clublocation.html">Club Locations</a>
+        <a href="personnel.html">Personnel</a>
+        <a href="clubmember.html">Club Members</a>
+        <a href="familymember.html">Family Members</a>
+        <a href="payment.html">Payments</a>
+        <a href="team.html">Teams</a>
+        <a href="player.html">Players</a>
+    </nav>
+
+    <section>
+        <div class="section-title">All Email Logs</div>
+        <div id="emailLogContent"></div>
+    </section>
+
+    <script>
+        fetch('http://localhost:3000/email-log')
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('emailLogContent');
+                let html = '<table><tr><th>Sender</th><th>Recipient</th><th>Subject</th><th>Date</th></tr>';
+                data.forEach(email => {
+                    html += `<tr><td>${email.sender}</td><td>${email.recipient}</td><td>${email.subject}</td><td>${email.emailDate}</td></tr>`;
+                });
+                html += '</table>';
+                content.innerHTML = html;
+            });
+    </script>
+</body>
+
+</html>

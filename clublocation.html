@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Locations</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Club Locations</h1>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="personnel.html">Personnel</a>
+        <a href="clubmember.html">Club Members</a>
+        <a href="familymember.html">Family Members</a>
+        <a href="payment.html">Payments</a>
+        <a href="team.html">Teams</a>
+        <a href="player.html">Players</a>
+        <a href="email.html">Email Logs</a>
+    </nav>
+
+    <section>
+        <div class="section-title">All Club Locations</div>
+        <div id="clubLocationContent"></div>
+    </section>
+
+    <script>
+        // Fetching data from the server
+        fetch('http://localhost:3000/locations')
+            .then(response => response.json())
+            .then(data => {
+                const locationList = document.getElementById('locationList');
+                data.forEach(location => {
+                    locationList.innerHTML += `<p>${location.name} - ${location.city}, ${location.province}</p>`;
+                });
+            })
+            .catch(error => console.error('Error fetching locations:', error));
+    </script>
+</body>
+
+</html>

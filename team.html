@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teams</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Teams</h1>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="clublocation.html">Club Locations</a>
+        <a href="personnel.html">Personnel</a>
+        <a href="clubmember.html">Club Members</a>
+        <a href="familymember.html">Family Members</a>
+        <a href="payment.html">Payments</a>
+        <a href="player.html">Players</a>
+        <a href="email.html">Email Logs</a>
+    </nav>
+
+    <section>
+        <div class="section-title">All Teams</div>
+        <div id="teamContent"></div>
+    </section>
+
+    <script>
+        fetch('http://localhost:3000/teams')
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('teamContent');
+                let html = '<table><tr><th>Team Name</th><th>Session Date</th><th>Session Time</th></tr>';
+                data.forEach(team => {
+                    html += `<tr><td>${team.teamName}</td><td>${team.sessionDate}</td><td>${team.sessionTime}</td></tr>`;
+                });
+                html += '</table>';
+                content.innerHTML = html;
+            });
+    </script>
+</body>
+
+</html>

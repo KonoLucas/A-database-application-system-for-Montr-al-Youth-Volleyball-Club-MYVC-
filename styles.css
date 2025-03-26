@@ -1,0 +1,186 @@
+/* Global Styles */
+body {
+  font-family: "Arial", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #ebf8ff;
+  color: #333;
+}
+
+/* Hero Section (With AI Image Background) */
+header {
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Center-align the home message */
+.welcome-message {
+  text-align: center; /* Center the text */
+  margin-top: 50px;
+  font-size: 24px;
+  color: #333;
+}
+
+/* Navigation Menu */
+nav {
+  background-color: #023e8a;
+  padding: 10px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+nav a {
+  color: white;
+  padding: 15px 30px;
+  text-decoration: none;
+  font-size: 18px;
+  margin: 0 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+nav a:hover {
+  background-color: #0077b6;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* Section Styles */
+section {
+  padding: 30px 20px;
+  margin: 20px 0;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Section Title */
+.section-title {
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-decoration: underline;
+  color: #023e8a;
+  text-align: center;
+}
+
+/* Section Content */
+.section-content {
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+table,
+th,
+td {
+  border: 1px solid #ddd;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+}
+
+th {
+  background-color: #90e0ef;
+}
+
+td {
+  background-color: #ade8f4;
+}
+
+/* Form Styles */
+form {
+  margin-bottom: 30px;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form input[type="text"],
+form input[type="number"],
+form input[type="date"],
+form button {
+  padding: 12px;
+  margin-bottom: 15px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form button {
+  background-color: #0077b6;
+  color: white;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #0096c7;
+  transition: background-color 0.3s ease;
+}
+
+form label {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+/* Smooth Scroll Effect */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Section Cards for Fancy Layout */
+.card {
+  padding: 20px;
+  margin: 20px;
+  background-color: #0096c7;
+  color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  nav a {
+    font-size: 16px;
+    padding: 12px 20px;
+  }
+
+  table,
+  th,
+  td {
+    font-size: 14px;
+  }
+
+  form input[type="text"],
+  form input[type="number"],
+  form input[type="date"] {
+    font-size: 14px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+}

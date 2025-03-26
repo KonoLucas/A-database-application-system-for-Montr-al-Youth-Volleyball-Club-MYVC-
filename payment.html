@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payments</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Payments</h1>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="clublocation.html">Club Locations</a>
+        <a href="personnel.html">Personnel</a>
+        <a href="clubmember.html">Club Members</a>
+        <a href="familymember.html">Family Members</a>
+        <a href="team.html">Teams</a>
+        <a href="player.html">Players</a>
+        <a href="email.html">Email Logs</a>
+    </nav>
+
+    <section>
+        <div class="section-title">All Payments</div>
+        <div id="paymentContent"></div>
+    </section>
+
+    <script>
+        fetch('http://localhost:3000/payments')
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('paymentContent');
+                let html = '<table><tr><th>Payment Method</th><th>Amount</th><th>Payment Date</th></tr>';
+                data.forEach(payment => {
+                    html += `<tr><td>${payment.payment_method}</td><td>${payment.payment_amount}</td><td>${payment.payment_date}</td></tr>`;
+                });
+                html += '</table>';
+                content.innerHTML = html;
+            });
+    </script>
+</body>
+
+</html>

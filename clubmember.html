@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Club Members</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Club Members</h1>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="clublocation.html">Club Locations</a>
+        <a href="personnel.html">Personnel</a>
+        <a href="familymember.html">Family Members</a>
+        <a href="payment.html">Payments</a>
+        <a href="team.html">Teams</a>
+        <a href="player.html">Players</a>
+        <a href="email.html">Email Logs</a>
+    </nav>
+
+    <section>
+        <div class="section-title">All Club Members</div>
+        <div id="clubMembersContent"></div>
+    </section>
+
+    <script>
+        fetch('http://localhost:3000/members')
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('clubMembersContent');
+                let html = '<table><tr><th>First Name</th><th>Last Name</th><th>Age</th></tr>';
+                data.forEach(member => {
+                    html += `<tr><td>${member.first_name}</td><td>${member.last_name}</td><td>${member.age}</td></tr>`;
+                });
+                html += '</table>';
+                content.innerHTML = html;
+            });
+    </script>
+</body>
+
+</html>
