@@ -3,6 +3,7 @@
 const express = require("express");
 const mysql = require("mysql2");
 const bodyParser = require("body-parser");
+const path = require("path"); // Import the path module
 
 const app = express();
 const port = 3000;
@@ -11,13 +12,16 @@ const port = 3000;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+// Serve static files (like index.html, CSS, etc.)
+app.use(express.static(path.join(__dirname, "public"))); // Make the 'public' folder public
+
 // MySQL Database Connection
 const db = mysql.createConnection({
-  host: "irc353.encs.concordia.ca", // Hostname from your screenshot
-  user: "irc353_4", // MySQL Username
-  password: "353getA+", // MySQL Password
-  database: "irc353_4", // Default schema (your database name)
-  port: 3306, // Default MySQL Port
+  host: "irc353.encs.concordia.ca",
+  user: "irc353_4",
+  password: "353getA+",
+  database: "irc353_4",
+  port: 3306,
 });
 
 // Connect to MySQL
@@ -29,108 +33,9 @@ db.connect((err) => {
   console.log("Connected to the MySQL database");
 });
 
-// CRUD for Locations
-// Create a new location
-app.post("/locations", (req, res) => {
-  const {
-    name,
-    type,
-    address,
-    city,
-    province,
-    postal_code,
-    phone_number,
-    web_address,
-    capacity,
-    manager_name,
-    manager_id,
-    number_members,
-  } = req.body;
-  const query =
-    "INSERT INTO ClubLocation (name, type, address, city, province, postal_code, phone_number, web_address, capacity, manager_name, manager_id, number_members) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  db.query(
-    query,
-    [
-      name,
-      type,
-      address,
-      city,
-      province,
-      postal_code,
-      phone_number,
-      web_address,
-      capacity,
-      manager_name,
-      manager_id,
-      number_members,
-    ],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(201).json({ message: "Location created successfully!" });
-    }
-  );
-});
-
-// Get all locations
-app.get("/locations", (req, res) => {
-  const query = "SELECT * FROM ClubLocation";
-  db.query(query, (err, results) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(200).json(results);
-  });
-});
-
-// Update a location
-app.put("/locations/:id", (req, res) => {
-  const { id } = req.params;
-  const {
-    name,
-    type,
-    address,
-    city,
-    province,
-    postal_code,
-    phone_number,
-    web_address,
-    capacity,
-    manager_name,
-    manager_id,
-    number_members,
-  } = req.body;
-  const query =
-    "UPDATE ClubLocation SET name = ?, type = ?, address = ?, city = ?, province = ?, postal_code = ?, phone_number = ?, web_address = ?, capacity = ?, manager_name = ?, manager_id = ?, number_members = ? WHERE location_id = ?";
-  db.query(
-    query,
-    [
-      name,
-      type,
-      address,
-      city,
-      province,
-      postal_code,
-      phone_number,
-      web_address,
-      capacity,
-      manager_name,
-      manager_id,
-      number_members,
-      id,
-    ],
-    (err, result) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.status(200).json({ message: "Location updated successfully!" });
-    }
-  );
-});
-
-// Delete a location
-app.delete("/locations/:id", (req, res) => {
-  const { id } = req.params;
-  const query = "DELETE FROM ClubLocation WHERE location_id = ?";
-  db.query(query, [id], (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.status(200).json({ message: "Location deleted successfully!" });
-  });
+// Route to serve the index page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html")); // Serve the index.html file from the 'public' folder
 });
 
 // Start the server
