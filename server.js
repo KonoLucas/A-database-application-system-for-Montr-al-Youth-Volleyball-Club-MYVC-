@@ -40,6 +40,7 @@ app.get('/api/club-locations', (req, res) => {
           return res.status(500).json({ error: "Database query failed" });
       }
       res.json(results);
+      console.log(`Database table ClubLocation querry catched`);
   });
 });
 
@@ -50,6 +51,7 @@ app.get('/api/club-Member', (req, res) => {
           return res.status(500).json({ error: "Database query failed" });
       }
       res.json(results);
+      console.log(`Database table ClubMember querry catched`);
   });
 });
 
@@ -60,8 +62,20 @@ app.get('/api/Family_Member_Relation', (req, res)=> {
       return res.status(500).json({ error: "Database query failed" });
     }
     res.json(results);
+    console.log(`Database table Family_Member_Relation querry catched`);
     });
   });
+
+  app.get('/api/FamilyMember', (req, res)=> {
+    db.query('SELECT * FROM FamilyMember', (err, results) => {
+      if(err){
+        console.error("Database error:", err);
+        return res.status(500).json({ error: "Database query failed" });
+      }
+      res.json(results);
+      console.log(`Database table Family_Member_Relation querry catched`);
+      });
+    });
 
 
 // Route to serve the index page
