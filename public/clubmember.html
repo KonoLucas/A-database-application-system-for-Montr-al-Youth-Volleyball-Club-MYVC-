@@ -30,18 +30,63 @@
         <div id="clubMembersContent"></div>
     </section>
 
+    <table id="clubTable">
+        <thead>
+            <tr id="headers"></tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+
     <script>
-        fetch('http://localhost:3000/members')
-            .then(response => response.json())
-            .then(data => {
-                const content = document.getElementById('clubMembersContent');
-                let html = '<table><tr><th>First Name</th><th>Last Name</th><th>Age</th></tr>';
-                data.forEach(member => {
-                    html += `<tr><td>${member.first_name}</td><td>${member.last_name}</td><td>${member.age}</td></tr>`;
+        // 1. Fetch table data using traditional callbacks
+        function fetchData() {
+            fetch('/api/club-Member')
+                .then(function(response) {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.json();
+                })
+                .then(function(data) {
+                    displayData(data);
+                })
+                .catch(function(error) {
+                    console.error("Error:", error);
+                    document.getElementById('data').innerHTML = 
+                        '<tr><td colspan="13">Failed to load data. Check console.</td></tr>';
                 });
-                html += '</table>';
-                content.innerHTML = html;
+        }
+
+        // 2. Display data in the table
+        function displayData(data) {
+            const headersRow = document.getElementById('headers');
+            const tableBody = document.getElementById('data');
+
+            // Clear existing content
+            headersRow.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Add headers (if data exists)
+            if (data.length > 0) {
+                Object.keys(data[0]).forEach(function(key) {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headersRow.appendChild(th);
+                });
+            }
+
+            // Add rows
+            data.forEach(function(row) {
+                const tr = document.createElement('tr');
+                Object.values(row).forEach(function(value) {
+                    const td = document.createElement('td');
+                    td.textContent = (value === null) ? 'NULL' : value;
+                    tr.appendChild(td);
+                });
+                tableBody.appendChild(tr);
             });
+        }
+
+        // 3. Load data when page opens
+        window.onload = fetchData;
     </script>
 </body>
 

@@ -33,6 +33,37 @@ db.connect((err) => {
   console.log("Connected to the MySQL database");
 });
 
+app.get('/api/club-locations', (req, res) => {
+  db.query('SELECT * FROM ClubLocation', (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      res.json(results);
+  });
+});
+
+app.get('/api/club-Member', (req, res) => {
+  db.query('SELECT * FROM ClubMembers', (err, results) => {
+      if (err) {
+          console.error("Database error:", err);
+          return res.status(500).json({ error: "Database query failed" });
+      }
+      res.json(results);
+  });
+});
+
+app.get('/api/Family_Member_Relation', (req, res)=> {
+  db.query('SELECT * FROM Family_Member_Relation', (err, results) => {
+    if(err){
+      console.error("Database error:", err);
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    res.json(results);
+    });
+  });
+
+
 // Route to serve the index page
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html")); // Serve the index.html file from the 'public' folder
