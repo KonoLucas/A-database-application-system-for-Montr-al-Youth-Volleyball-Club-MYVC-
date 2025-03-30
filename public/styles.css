@@ -6,9 +6,10 @@ body {
   box-sizing: border-box;
   background-color: #ebf8ff;
   color: #333;
+  text-align: center;
 }
 
-/* Hero Section (With AI Image Background) */
+/* Hero Section */
 header {
   background-size: cover;
   background-position: center;

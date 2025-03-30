@@ -73,17 +73,17 @@
         // 1. Fetch table data
         function fetchData() {
             fetch('/api/club-locations')
-                .then(function(response) {
+                .then(function (response) {
                     if (!response.ok) throw new Error("Network error");
                     return response.json();
                 })
-                .then(function(data) {
+                .then(function (data) {
                     allData = data;
                     displayData(data);
                 })
-                .catch(function(error) {
+                .catch(function (error) {
                     console.error("Error:", error);
-                    document.getElementById('data').innerHTML = 
+                    document.getElementById('data').innerHTML =
                         '<tr><td colspan="13">Failed to load data. Check console.</td></tr>';
                 });
         }
@@ -99,12 +99,12 @@
 
             // Add headers (if data exists)
             if (data.length > 0) {
-                Object.keys(data[0]).forEach(function(key) {
+                Object.keys(data[0]).forEach(function (key) {
                     const th = document.createElement('th');
                     th.textContent = key;
                     headersRow.appendChild(th);
                 });
-                
+
                 // Add action column header
                 const actionTh = document.createElement('th');
                 actionTh.textContent = 'Actions';
@@ -112,33 +112,33 @@
             }
 
             // Add rows
-            data.forEach(function(row, index) {
+            data.forEach(function (row, index) {
                 const tr = document.createElement('tr');
                 tr.dataset.location_id = row.location_id || index; // Assuming there's an location_id field
-                
-                Object.values(row).forEach(function(value) {
+
+                Object.values(row).forEach(function (value) {
                     const td = document.createElement('td');
                     td.textContent = (value === null) ? 'NULL' : value;
                     tr.appendChild(td);
                 });
-                
+
                 // Add action buttons
                 const actionTd = document.createElement('td');
-                
-                
-                
+
+
+
                 const editBtn = document.createElement('button');
                 editBtn.textContent = 'Edit';
-                editBtn.onclick = function() { editRow(row); };
-                
+                editBtn.onclick = function () { editRow(row); };
+
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = function() { deleteRow(row); };
-                
+                deleteBtn.onclick = function () { deleteRow(row); };
+
                 actionTd.appendChild(editBtn);
                 actionTd.appendChild(deleteBtn);
                 tr.appendChild(actionTd);
-                
+
                 tableBody.appendChild(tr);
             });
         }
@@ -148,12 +148,12 @@
             selectedRowData = rowData;
             const modal = document.getElementById('editModal');
             const fields = document.getElementById('editFields');
-            
+
             fields.innerHTML = '';
-            
+
             for (const [key, value] of Object.entries(rowData)) {
                 if (key === 'location_id') continue; // Skip location_id field ( it's auto-incremented)
-                
+
                 const div = document.createElement('div');
                 div.className = 'form-group';
                 div.innerHTML = `
@@ -162,19 +162,19 @@
                 `;
                 fields.appendChild(div);
             }
-            
+
             modal.style.display = 'block';
         }
         // Edit Form submission handlers
-        document.getElementById('editForm').onsubmit = function(e) {
+        document.getElementById('editForm').onsubmit = function (e) {
             e.preventDefault();
-            
+
             const formData = {};
             const inputs = document.querySelectorAll('#editForm input');
             inputs.forEach(input => {
                 formData[input.name] = input.value.trim() === '' ? null : input.value;
             });
-            
+
             fetch(`/api/club-locations/${selectedRowData.location_id}`, {
                 method: 'PUT',
                 headers: {
@@ -182,20 +182,20 @@
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => {
-                if (!response.ok) throw new Error("Create failed");
-                return response.json();
-            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Create failed");
+                    return response.json();
+                })
 
-            .then(data => {
-                alert('Location updated successfully');
-                document.getElementById('editModal').style.display = 'none';
-                fetchData(); // Refresh the table
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to update location');
-            });
+                .then(data => {
+                    alert('Location updated successfully');
+                    document.getElementById('editModal').style.display = 'none';
+                    fetchData(); // Refresh the table
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to update location');
+                });
         };
 
 
@@ -207,18 +207,18 @@
                 fetch(`/api/club-locations/${rowData.location_id}`, {
                     method: 'DELETE'
                 })
-                .then(response => {
-                    if (!response.ok) throw new Error("Delete failed");
-                    return response.json();
-                })
-                .then(data => {
-                    alert('Location deleted successfully');
-                    fetchData(); // Refresh the table
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to delete location');
-                });
+                    .then(response => {
+                        if (!response.ok) throw new Error("Delete failed");
+                        return response.json();
+                    })
+                    .then(data => {
+                        alert('Location deleted successfully');
+                        fetchData(); // Refresh the table
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Failed to delete location');
+                    });
             }
         }
 
@@ -228,15 +228,15 @@
         function showCreateForm() {
             const modal = document.getElementById('createModal');
             const fields = document.getElementById('createFields');
-            
+
             fields.innerHTML = '';
-            
+
             // Get sample data to determine fields (using first row if available)
             if (allData.length > 0) {
                 const sampleRow = allData[0];
                 for (const key in sampleRow) {
                     if (key === 'location_id') continue; // Skip ID field
-                    
+
                     const div = document.createElement('div');
                     div.className = 'form-group';
                     div.innerHTML = `
@@ -246,19 +246,19 @@
                     fields.appendChild(div);
                 }
             }
-            
+
             modal.style.display = 'block';
         }
 
-        document.getElementById('createForm').onsubmit = function(e) {
+        document.getElementById('createForm').onsubmit = function (e) {
             e.preventDefault();
-            
+
             const formData = {};
             const inputs = document.querySelectorAll('#createForm input');
             inputs.forEach(input => {
                 formData[input.name] = input.value.trim() === '' ? null : input.value;
             });
-            
+
             fetch('/api/club-locations', {
                 method: 'POST',
                 headers: {
@@ -266,32 +266,32 @@
                 },
                 body: JSON.stringify(formData)
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; });
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert(data.message || 'Location created successfully');
-                document.getElementById('createModal').style.display = 'none';
-                fetchData(); // Refresh the table
-                document.getElementById('createForm').reset();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert(error.error || 'Failed to create location');
-            });
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw err; });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.message || 'Location created successfully');
+                    document.getElementById('createModal').style.display = 'none';
+                    fetchData(); // Refresh the table
+                    document.getElementById('createForm').reset();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.error || 'Failed to create location');
+                });
         };
 
         // 8. Modal close handlers
         document.querySelectorAll('.close').forEach(closeBtn => {
-            closeBtn.onclick = function() {
+            closeBtn.onclick = function () {
                 this.closest('.modal').style.display = 'none';
             };
         });
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             if (event.target.className === 'modal') {
                 event.target.style.display = 'none';
             }
