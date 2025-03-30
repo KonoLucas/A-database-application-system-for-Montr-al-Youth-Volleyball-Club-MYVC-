@@ -110,6 +110,31 @@ app.post('/api/club-locations', (req, res) => {
 
 //------------End of club-locations--------------------------------------------
 
+
+
+//------------For Queies res-------------------
+app.get('/api/run-query', (req, res) => {
+  const queryId = req.query.id;
+  
+  // Define your queries
+  const queries = {
+      1: "SELECT cl.name AS LocationName, cl.address, cl.city, cl.province, cl.postal_code, cl.phone_number, cl.web_address, cl.type, cl.capacity, p.first_name AS ManagerFirstName, p.last_name AS ManagerLastName, COUNT(cm.CMN) AS ClubMembersCount FROM ClubLocation cl LEFT JOIN Personnel p ON cl.manager_id = p.personnel_id LEFT JOIN ClubMembers cm ON cl.location_id = cm.current_location_id GROUP BY cl.location_id, cl.name, cl.address, cl.city, cl.province, cl.postal_code, cl.phone_number, cl.web_address, cl.type, cl.capacity, p.first_name, p.last_name ORDER BY cl.province, cl.city;",
+      2: "SELECT * FROM ClubMembers",
+      3: "SELECT * FROM Teams"
+  };
+  
+  const sql = queries[queryId];
+  if (!sql) return res.status(400).send("Invalid query ID");
+  
+  db.query(sql, (err, results) => {
+      if (err) return res.status(500).send(err.message);
+      res.json(results);
+  });
+});
+
+
+
+
 app.get('/api/club-Member', (req, res) => {
   db.query('SELECT * FROM ClubMembers', (err, results) => {
       if (err) {
