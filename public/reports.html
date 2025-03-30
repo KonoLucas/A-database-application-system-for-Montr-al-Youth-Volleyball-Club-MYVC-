@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Query Reports</h1>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="/">Home</a>
+    <a href="/clublocation.html">Club Locations</a>
+    <a href="/personnel.html">Personnel</a>
+    <a href="/clubmember.html">Club Members</a>
+    <a href="/familymember.html">Family Members</a>
+    <a href="/payment.html">Payments</a>
+    <a href="/team.html">Teams</a>
+    <a href="/player.html">Players</a>
+    <a href="/email.html">Email Logs</a>
+    <a href="/reports.html" class="active">Reports</a>
+  </nav>
+  
+  <div class="query-buttons">
+    <button data-query-id="7" onclick="runQuery(7)">7. Get complete details for every location in the system.</button>
+    <button data-query-id="8" onclick="runQuery(8)">8. Get Details for Family Members and Club Members Associated with Them.</button>
+    <button data-query-id="9" onclick="runQuery(9)">9. Get Details of All Teams' Formations Recorded in the System for a Given Location and Week.</button>
+    <button data-query-id="10" onclick="runQuery(10)">Get Teams</button>
+  </div>
+  
+  <div id="loading" class="loading">Loading data...</div>
+  <div id="error" class="error" style="display: none;"></div>
+  <div id="status" class="status"></div>
+  
+  <div id="results">
+    <p>Select a query to see results</p>
+  </div>
+
+  <script>
+    function runQuery(queryId) {
+  console.log("runQuery function called with ID:", queryId);
+
+  const loading = document.getElementById('loading');
+  const error = document.getElementById('error');
+  const status = document.getElementById('status');
+  const results = document.getElementById('results');
+  
+  loading.style.display = 'block';
+  error.style.display = 'none';
+  status.textContent = "Loading...";
+  results.innerHTML = "";
+  
+  fetch(`/api/run-query?id=${queryId}`)
+    .then(response => {
+      console.log("Received response status:", response.status);
+      if (!response.ok) {
+        return response.json().then(errData => {
+          throw new Error(errData.error || `HTTP error! status: ${response.status}`);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log("Data received:", data);
+      loading.style.display = 'none';
+      
+      if (!Array.isArray(data)) {
+        throw new Error("Unexpected response format");
+      }
+      
+      status.textContent = `Loaded ${data.length} rows`;
+      
+      if (data.length === 0) {
+        results.innerHTML = "<p>No results found</p>";
+        return;
+      }
+      
+      let table = "<table><tr>";
+      
+      // Add headers
+      Object.keys(data[0]).forEach(key => {
+        table += `<th>${key}</th>`;
+      });
+      table += "</tr>";
+      
+      // Add rows
+      data.forEach(row => {
+        table += "<tr>";
+        Object.values(row).forEach(value => {
+          table += `<td>${value ?? '-'}</td>`;
+        });
+        table += "</tr>";
+      });
+      
+      table += "</table>";
+      results.innerHTML = table;
+    })
+    .catch(err => {
+      console.error("Error:", err);
+      loading.style.display = 'none';
+      error.style.display = 'block';
+      error.textContent = `Error: ${err.message}`;
+      status.textContent = "Error occurred";
+    });
+}
+  </script>
+</body>
+</html>
