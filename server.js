@@ -101,7 +101,7 @@ app.post('/api/club-locations', (req, res) => {
       });
     }
     
-    res.status(201).json({ 
+    res.status(201).json({
       message: "Location created successfully",
       insertId: result.insertId 
     });
@@ -109,8 +109,6 @@ app.post('/api/club-locations', (req, res) => {
 });
 
 //------------End of club-locations--------------------------------------------
-
-
 
 app.get('/api/club-Member', (req, res) => {
   db.query('SELECT * FROM ClubMembers', (err, results) => {
