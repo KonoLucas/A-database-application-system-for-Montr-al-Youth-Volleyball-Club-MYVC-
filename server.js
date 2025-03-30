@@ -33,6 +33,8 @@ db.connect((err) => {
   console.log("Connected to the MySQL database");
 });
 
+
+// For club-locations-------------------------------------------- 
 app.get('/api/club-locations', (req, res) => {
   db.query('SELECT * FROM ClubLocation', (err, results) => {
       if (err) {
@@ -43,6 +45,72 @@ app.get('/api/club-locations', (req, res) => {
       console.log(`Database table ClubLocation querry catched`);
   });
 });
+
+
+app.put('/api/club-locations/:location_id', (req, res) => {
+  const location_id = req.params.location_id;
+  const updateData = req.body;
+  
+  db.query('UPDATE ClubLocation SET ? WHERE location_id = ?', 
+    [updateData, location_id], 
+    (err, result) => {  
+      if (err) {
+        console.error("Update failed:", err);
+        return res.status(500).json({ error: err.message }); 
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "No record found" });
+      }
+      res.json({ 
+        message: "Update successful",
+        affectedRows: result.affectedRows 
+      });
+    }
+  );
+});
+
+app.delete('/api/club-locations/:location_id', (req, res) => {
+  const location_id = req.params.location_id;
+  
+  db.query('DELETE FROM ClubLocation WHERE location_id = ?', 
+    [location_id], 
+    (err, result) => {  
+      if (err) {
+        console.error("Delete failed:", err);
+        return res.status(500).json({ error: err.message });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "No record found" });
+      }
+      res.json({ 
+        message: "Delete successful",
+        affectedRows: result.affectedRows 
+      });
+    }
+  );
+});
+
+app.post('/api/club-locations', (req, res) => {
+  const newData = req.body;
+  
+  db.query('INSERT INTO ClubLocation SET ?', newData, (err, result) => {
+    if (err) {
+      console.error("Create failed:", err);
+      return res.status(500).json({ 
+        error: err.sqlMessage || "Database error" 
+      });
+    }
+    
+    res.status(201).json({ 
+      message: "Location created successfully",
+      insertId: result.insertId 
+    });
+  });
+});
+
+//------------End of club-locations--------------------------------------------
+
+
 
 app.get('/api/club-Member', (req, res) => {
   db.query('SELECT * FROM ClubMembers', (err, results) => {
