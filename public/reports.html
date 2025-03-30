@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+
+
+
+
+<body>
+  <h1>Query Reports</h1>
+
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="clublocation.html">Club Locations</a>
+    <a href="personnel.html">Personnel</a>
+    <a href="clubmember.html">Club Members</a>
+    <a href="familymember.html">Family Members</a>
+    <a href="payment.html">Payments</a>
+    <a href="team.html">Teams</a>
+    <a href="player.html">Players</a>
+    <a href="email.html">Email Logs</a>
+    <a href="reports.html" class="active">Reports</a>
+  </nav>
+
+  <div class="query-buttons">
+    <button data-query-id="7">7. Get complete details for every location in the system.</button>
+    <button data-query-id="8">8. Get Details for Family Members and Club Members Associated with Them.</button>
+    <button data-query-id="9">9. Get Details of All Teams' Formations Recorded in the System for a Given Location and
+      Week.</button>
+    <button data-query-id="10">Get Teams</button>
+    <button data-query-id="11">Custom Query 1</button>
+    <button data-query-id="12">Custom Query 2</button>
+  </div>
+
+  <div id="loading" class="loading">Loading data...</div>
+  <div id="error" class="error" style="display: none;"></div>
+
+  <div id="results">
+    <p>Select a query to see results</p>
+  </div>
+
+  <script>
+
+
+    const queryDefinitions = {
+      7: { name: "Club Locations", sql: "SELECT * FROM ClubLocation ORDER BY province, city" },
+      8: { name: "Club Members", sql: "SELECT * FROM ClubMembers ORDER BY last_name, first_name" },
+      9: { name: "Personnel", sql: "SELECT * FROM Personnel ORDER BY role, last_name" },
+      10: { name: "Teams", sql: "SELECT * FROM Teams ORDER BY team_name" },
+      11: { name: "Location Capacity", sql: "SELECT name, capacity, type FROM ClubLocation ORDER BY capacity DESC" },
+      12: { name: "Member Count by Location", sql: "SELECT cl.name, COUNT(cm.CMN) as member_count FROM ClubLocation cl LEFT JOIN ClubMembers cm ON cl.location_id = cm.current_location_id GROUP BY cl.location_id ORDER BY member_count DESC" }
+    };
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const buttons = document.querySelectorAll('.query-buttons button');
+
+      buttons.forEach(button => {
+        button.addEventListener('click', function () {
+          const queryId = this.getAttribute('data-query-id');
+          executeQuery(queryId);
+
+          // Update active button styling
+          buttons.forEach(btn => btn.classList.remove('active-query'));
+          this.classList.add('active-query');
+        });
+      });
+    });
+
+    function fetchData() {
+      const loadingElement = document.getElementById('loading');
+      const errorElement = document.getElementById('error');
+      const tableBody = document.getElementById('dataBody');
+      const summaryElement = document.getElementById('summary');
+
+      // Show loading, hide error
+      loadingElement.style.display = 'block';
+      errorElement.style.display = 'none';
+      tableBody.innerHTML = '';
+
+      fetch(`/api/run-query?id=${queryId}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+
+          status.textContent = `Loaded ${data.length} rows`;
+
+          if (data.length === 0) {
+            results.innerHTML = "<p>No results found</p>";
+            return;
+          }
+
+          // Create table
+          let table = "<table><tr>";
+
+          // Add headers
+          for (let key in data[0]) {
+            table += `<th>${key}</th>`;
+          }
+          table += "</tr>";
+
+          // Add rows
+          data.forEach(row => {
+            table += "<tr>";
+            for (let key in row) {
+              table += `<td>${row[key] || '-'}</td>`;
+            }
+            table += "</tr>";
+
+          });
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          loadingElement.style.display = 'none';
+          errorElement.textContent = `Error loading data: ${error.message}`;
+          errorElement.style.display = 'block';
+        });
+    }
+  </script>
+</body>
