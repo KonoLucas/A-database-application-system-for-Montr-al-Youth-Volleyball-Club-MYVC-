@@ -35,27 +35,18 @@
   <div id="status" class="status"></div>
   
 
-  <table id="results">
-    <thead>
-        <tr id="headers"></tr>
-    </thead>
-    <tbody id="data"></tbody>
-</table>
+  <section>
+    <div class="section-title">results</div>
+    <table id="clubTable">
+        <thead>
+            <tr id="headers"></tr>
+        </thead>
+        <tbody id="data"></tbody>
+    </table>
+</section>
 
-  <script>
+      <script>
   function runQuery(queryId) {
-    const loading = document.getElementById('loading');
-    const error = document.getElementById('error');
-    const status = document.getElementById('status');
-    const results = document.getElementById('results');
-
-  // Reset UI
-  loading.style.display = 'block';
-  error.style.display = 'none';
-  results.innerHTML = '';
-  status.textContent = `Executing query ${queryId}...`;
-
-  let response;
 
   fetch(`/api/run-query?id=${queryId}`)
   .then(function (response) {
@@ -72,63 +63,72 @@
                         '<tr><td colspan="13">Failed to load data. Check console.</td></tr>';
                 });
 
-  function displayData(data) {
+    function displayData(apiResponse) {
     const headersRow = document.getElementById('headers');
     const tableBody = document.getElementById('data');
+    const statusDiv = document.getElementById('status');
 
-    if (!headersRow || !tableBody) {
-        console.error("Error: Table elements not found");
+    if (!headersRow || !tableBody || !statusDiv) {
+        console.error("Error: Required elements not found");
         return;
     }
 
-            // Clear existing content
-            headersRow.innerHTML = '';
-            tableBody.innerHTML = '';
+    // Clear existing content
+    headersRow.innerHTML = '';
+    tableBody.innerHTML = '';
 
-            // Add headers (if data exists)
-    if (!data || data.length === 0) {
-      console.warn("No data received from API.");
-      tableBody.innerHTML = '<tr><td colspan="13">No data available</td></tr>';
-      return;
+    // Update status
+    statusDiv.textContent = `Query ${apiResponse.queryId} returned ${apiResponse.count} results`;
+
+    // Check if data exists
+    if (!apiResponse.data || apiResponse.data.length === 0) {
+        console.warn("No data received from API.");
+        tableBody.innerHTML = '<tr><td colspan="13">No data available</td></tr>';
+        return;
     }
 
-                // Add action column header
-                const actionTh = document.createElement('th');
-                actionTh.textContent = 'Actions';
-                headersRow.appendChild(actionTh);
-            
+    // Create headers from first data object's keys
+    const firstItem = apiResponse.data[0];
+    Object.keys(firstItem).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headersRow.appendChild(th);
+    });
 
-            // Add rows
-            data.forEach(function (row, index) {
-                const tr = document.createElement('tr');
-                tr.dataset.location_id = row.location_id || index; // Assuming there's an location_id field
+    // Add action column header
+    const actionTh = document.createElement('th');
+    actionTh.textContent = 'Actions';
+    headersRow.appendChild(actionTh);
 
-                Object.values(row).forEach(function (value) {
-                    const td = document.createElement('td');
-                    td.textContent = (value === null) ? 'NULL' : value;
-                    tr.appendChild(td);
-                });
+    // Add rows
+    apiResponse.data.forEach((row, index) => {
+        const tr = document.createElement('tr');
+        tr.dataset.location_id = row.location_id || index;
 
-                // Add action buttons
-                const actionTd = document.createElement('td');
+        Object.values(row).forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = (value === null) ? 'NULL' : value;
+            tr.appendChild(td);
+        });
 
+        // Add action buttons
+        const actionTd = document.createElement('td');
+        
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = function() { editRow(row); };
 
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = function() { deleteRow(row); };
 
-                const editBtn = document.createElement('button');
-                editBtn.textContent = 'Edit';
-                editBtn.onclick = function () { editRow(row); };
+        actionTd.appendChild(editBtn);
+        actionTd.appendChild(deleteBtn);
+        tr.appendChild(actionTd);
 
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.onclick = function () { deleteRow(row); };
-
-                actionTd.appendChild(editBtn);
-                actionTd.appendChild(deleteBtn);
-                tr.appendChild(actionTd);
-
-                tableBody.appendChild(tr);
-            });
-        }
+        tableBody.appendChild(tr);
+    });
+  }
   }
 
 
