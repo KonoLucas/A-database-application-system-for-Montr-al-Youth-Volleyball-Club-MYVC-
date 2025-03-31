@@ -34,77 +34,105 @@
   <div id="error" class="error" style="display: none;"></div>
   <div id="status" class="status"></div>
   
-  <div id="results">
-    <p>Select a query to see results</p>
-  </div>
+
+  <table id="results">
+    <thead>
+        <tr id="headers"></tr>
+    </thead>
+    <tbody id="data"></tbody>
+</table>
 
   <script>
-    function runQuery(queryId) {
-  console.log("runQuery function called with ID:", queryId);
+  function runQuery(queryId) {
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const status = document.getElementById('status');
+    const results = document.getElementById('results');
 
-  const loading = document.getElementById('loading');
-  const error = document.getElementById('error');
-  const status = document.getElementById('status');
-  const results = document.getElementById('results');
-  
+  // Reset UI
   loading.style.display = 'block';
   error.style.display = 'none';
-  status.textContent = "Loading...";
-  results.innerHTML = "";
-  
+  results.innerHTML = '';
+  status.textContent = `Executing query ${queryId}...`;
+
+  let response;
+
   fetch(`/api/run-query?id=${queryId}`)
-    .then(response => {
-      console.log("Received response status:", response.status);
-      if (!response.ok) {
-        return response.json().then(errData => {
-          throw new Error(errData.error || `HTTP error! status: ${response.status}`);
-        });
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log("Data received:", data);
-      loading.style.display = 'none';
-      
-      if (!Array.isArray(data)) {
-        throw new Error("Unexpected response format");
-      }
-      
-      status.textContent = `Loaded ${data.length} rows`;
-      
-      if (data.length === 0) {
-        results.innerHTML = "<p>No results found</p>";
+  .then(function (response) {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.json();
+                })
+                .then(function (data) {
+                    allData = data;
+                    displayData(data);
+                })
+                .catch(function (error) {
+                    console.error("Error:", error);
+                    document.getElementById('data').innerHTML =
+                        '<tr><td colspan="13">Failed to load data. Check console.</td></tr>';
+                });
+
+  function displayData(data) {
+    const headersRow = document.getElementById('headers');
+    const tableBody = document.getElementById('data');
+
+    if (!headersRow || !tableBody) {
+        console.error("Error: Table elements not found");
         return;
-      }
-      
-      let table = "<table><tr>";
-      
-      // Add headers
-      Object.keys(data[0]).forEach(key => {
-        table += `<th>${key}</th>`;
-      });
-      table += "</tr>";
-      
-      // Add rows
-      data.forEach(row => {
-        table += "<tr>";
-        Object.values(row).forEach(value => {
-          table += `<td>${value ?? '-'}</td>`;
-        });
-        table += "</tr>";
-      });
-      
-      table += "</table>";
-      results.innerHTML = table;
-    })
-    .catch(err => {
-      console.error("Error:", err);
-      loading.style.display = 'none';
-      error.style.display = 'block';
-      error.textContent = `Error: ${err.message}`;
-      status.textContent = "Error occurred";
-    });
-}
-  </script>
-</body>
+    }
+
+            // Clear existing content
+            headersRow.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Add headers (if data exists)
+    if (!data || data.length === 0) {
+      console.warn("No data received from API.");
+      tableBody.innerHTML = '<tr><td colspan="13">No data available</td></tr>';
+      return;
+    }
+
+                // Add action column header
+                const actionTh = document.createElement('th');
+                actionTh.textContent = 'Actions';
+                headersRow.appendChild(actionTh);
+            
+
+            // Add rows
+            data.forEach(function (row, index) {
+                const tr = document.createElement('tr');
+                tr.dataset.location_id = row.location_id || index; // Assuming there's an location_id field
+
+                Object.values(row).forEach(function (value) {
+                    const td = document.createElement('td');
+                    td.textContent = (value === null) ? 'NULL' : value;
+                    tr.appendChild(td);
+                });
+
+                // Add action buttons
+                const actionTd = document.createElement('td');
+
+
+
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.onclick = function () { editRow(row); };
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'Delete';
+                deleteBtn.onclick = function () { deleteRow(row); };
+
+                actionTd.appendChild(editBtn);
+                actionTd.appendChild(deleteBtn);
+                tr.appendChild(actionTd);
+
+                tableBody.appendChild(tr);
+            });
+        }
+  }
+
+
+
+    </script>
+  </body>
 </html>

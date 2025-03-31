@@ -33,6 +33,70 @@ db.connect((err) => {
   console.log("Connected to the MySQL database");
 });
 
+
+app.get("/api/run-query", (req, res) => {
+  console.log("Request received on /api/run-query with query ID:", req.query.id);
+
+  const queryId = Number(req.query.id);
+  console.log("Converted query ID:", queryId);
+
+   
+  if (isNaN(queryId) || queryId <= 0) {
+      console.log("Invalid query ID received:", req.query.id);
+      return res.status(400).json({ error: "Invalid query ID" });
+    }
+
+  const queries = {
+    7: {
+      name: "Complete Location Details",
+      sql: `SELECT 
+              cl.name AS LocationName, 
+              cl.address, 
+              cl.city, 
+              cl.province, 
+              cl.postal_code, 
+              cl.phone_number, 
+              cl.web_address, 
+              cl.type, 
+              cl.capacity,
+              p.first_name AS ManagerFirstName, 
+              p.last_name AS ManagerLastName,
+              COUNT(cm.CMN) AS ClubMembersCount 
+            FROM ClubLocation cl
+            LEFT JOIN Personnel p ON cl.manager_id = p.personnel_id
+            LEFT JOIN ClubMembers cm ON cl.location_id = cm.current_location_id
+            GROUP BY cl.location_id, cl.name, cl.address, cl.city, cl.province, cl.postal_code, 
+                     cl.phone_number, cl.web_address, cl.type, cl.capacity,
+                     p.first_name, p.last_name
+            ORDER BY cl.province, cl.city`
+    },
+    8: { name: "Club Members List", sql: "SELECT * FROM ClubMembers" },
+    9: { name: "Teams List", sql: "SELECT * FROM Teams" }
+  };
+  
+  
+  if (!queries[queryId]) {
+    console.log("Error reading the queries");
+    return res.status(400).json({   
+      error: `Invalid query ID: ${queryId}`,
+      availableQueries: Object.keys(queries).map(id => ({ id: Number(id), name: queries[id].name }))
+    });
+  }
+  const query = queries[queryId];
+  
+  console.log(`[${new Date().toISOString()}] Executing Query ${queryId}: ${query.name}`);
+
+  db.query(query.sql, [], (err, results) => {
+    if (err) {
+      console.error(`[${new Date().toISOString()}] Query Failed:`, err);
+      return res.status(500).json({ error: "Database query failed", details: err });
+    }
+
+    console.log(`[${new Date().toISOString()}] Query ${queryId} Successful: Returned ${results.length} rows`);
+    res.json({ success: true, queryId: queryId, count: results.length, data: results });
+  });
+});
+
 // For club-locations--------------------------------------------
 app.get("/api/club-locations", (req, res) => {
   db.query("SELECT * FROM ClubLocation", (err, results) => {
@@ -688,87 +752,67 @@ app.post("/api/email-logs", (req, res) => {
 });
 //----------------------------------------End of email-log---------------------------------------//
 // Route to serve the index page
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html")); // Serve the index.html file from the 'public' folder
-});
+app.get("/api/run-query", (req, res) => {
+  console.log("Request received on /api/run-query with query ID:", req.query.id);
 
+    // 先转换成数字
+    const queryId = Number(req.query.id);
+    console.log("Converted query ID:", queryId);
 
-app.get('/api/run-query', (req, res) => {
-  const queryId = req.query.id;
-  
-  // Define your queries with descriptive names for logging
-  const queries = {
-      7: {
-        name: "Complete Location Details",
-        sql: `SELECT 
-                cl.name AS LocationName, 
-                cl.address, 
-                cl.city, 
-                cl.province, 
-                cl.postal_code, 
-                cl.phone_number, 
-                cl.web_address, 
-                cl.type, 
-                cl.capacity,
-                p.first_name AS ManagerFirstName, 
-                p.last_name AS ManagerLastName,
-                COUNT(cm.CMN) AS ClubMembersCount 
-              FROM ClubLocation cl
-              LEFT JOIN Personnel p ON cl.manager_id = p.personnel_id
-              LEFT JOIN ClubMembers cm ON cl.location_id = cm.current_location_id
-              GROUP BY 
-                cl.location_id, cl.name, cl.address, cl.city, cl.province, cl.postal_code, 
-                cl.phone_number, cl.web_address, cl.type, cl.capacity,
-                p.first_name, p.last_name
-              ORDER BY cl.province, cl.city`
-      },
-      8: {
-        name: "Club Members List",
-        sql: "SELECT * FROM ClubMembers"
-      },
-      9: {
-        name: "Teams List",
-        sql: "SELECT * FROM Teams"
-      }
-    };
-    
-    const query = queries[queryId];
-    
-    if (!query) {
-      const errorMsg = `Invalid query ID: ${queryId}`;
-      console.error(`[${new Date().toISOString()}] ${errorMsg}`);
-      return res.status(400).json({ 
-        error: errorMsg,
-        availableQueries: Object.keys(queries).map(id => ({ id, name: queries[id].name }))
-      });
+    // 确保 queryId 是有效的数字
+    if (isNaN(queryId) || queryId <= 0) {
+        console.log("Invalid query ID received:", req.query.id);
+        return res.status(400).json({ error: "Invalid query ID" });
     }
-    
-    console.log(`[${new Date().toISOString()}] Executing Query ${queryId}: ${query.name}`);
-    console.log(`[SQL] ${query.sql.replace(/\s+/g, ' ').trim()}`); // Cleaned SQL for logging
-    
-    db.query(query.sql, (err, results) => {
-      if (err) {
-        console.error(`[${new Date().toISOString()}] Query ${queryId} Failed:`);
-        console.error(`[SQL ERROR] ${err.code} (${err.errno}): ${err.message}`);
-        console.error(`[SQL STATE] ${err.sqlState}`);
-        console.error(`[OFFENDING QUERY] ${err.sql}`);
-        
-        return res.status(500).json({
-          error: "Database query failed",
-          details: {
-            code: err.code,
-            message: err.message,
-            sqlState: err.sqlState
-          }
-        });
-      }
-      
-      console.log(`[${new Date().toISOString()}] Query ${queryId} Successful: Returned ${results.length} rows`);
-      res.json(results);
+
+  const queries = {
+    7: {
+      name: "Complete Location Details",
+      sql: `SELECT 
+              cl.name AS LocationName, 
+              cl.address, 
+              cl.city, 
+              cl.province, 
+              cl.postal_code, 
+              cl.phone_number, 
+              cl.web_address, 
+              cl.type, 
+              cl.capacity,
+              p.first_name AS ManagerFirstName, 
+              p.last_name AS ManagerLastName,
+              COUNT(cm.CMN) AS ClubMembersCount 
+            FROM ClubLocation cl
+            LEFT JOIN Personnel p ON cl.manager_id = p.personnel_id
+            LEFT JOIN ClubMembers cm ON cl.location_id = cm.current_location_id
+            GROUP BY cl.location_id, cl.name, cl.address, cl.city, cl.province, cl.postal_code, 
+                     cl.phone_number, cl.web_address, cl.type, cl.capacity,
+                     p.first_name, p.last_name
+            ORDER BY cl.province, cl.city`
+    },
+    8: { name: "Club Members List", sql: "SELECT * FROM ClubMembers" },
+    9: { name: "Teams List", sql: "SELECT * FROM Teams" }
+  };
+
+  if (!queries[queryId]) {
+    return res.status(400).json({
+      error: `Invalid query ID: ${queryId}`,
+      availableQueries: Object.keys(queries).map(id => ({ id: Number(id), name: queries[id].name }))
     });
+  }
+
+  const query = queries[queryId];
+  console.log(`[${new Date().toISOString()}] Executing Query ${queryId}: ${query.name}`);
+
+  db.query(query.sql, [], (err, results) => {
+    if (err) {
+      console.error(`[${new Date().toISOString()}] Query Failed:`, err);
+      return res.status(500).json({ error: "Database query failed", details: err });
+    }
+
+    console.log(`[${new Date().toISOString()}] Query ${queryId} Successful: Returned ${results.length} rows`);
+    res.json({ success: true, queryId: queryId, count: results.length, data: results });
   });
-
-
+});
 
 // Start the server
 app.listen(port, () => {
