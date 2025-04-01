@@ -165,13 +165,20 @@ app.get("/api/run-query", (req, res) => {
   
       12: { 
           name: "Members Not on Any Team", 
-          sql: `SELECT CM.ClubMemberID, CM.FirstName, CM.LastName, TIMESTAMPDIFF(YEAR, CM.DOB, CURDATE()) AS Age, 
-                CM.JoinDate, CM.PhoneNumber, CM.Email, L.Name AS CurrentLocation
+          sql: `SELECT CM.CMN AS ClubMemberID, 
+                  CM.first_name, 
+                  CM.last_name, 
+                  TIMESTAMPDIFF(YEAR, CM.dob, CURDATE()) AS age,
+                  CM.phone_number, 
+                  CM.address, 
+                  CL.name AS current_location
                 FROM ClubMembers CM
-                JOIN ClubLocation L ON CM.CurrentLocationID = L.LocationID
-                LEFT JOIN TeamMember TM ON CM.ClubMemberID = TM.ClubMemberID
-                WHERE TM.ClubMemberID IS NULL
-                ORDER BY L.Name, CM.ClubMemberID;`
+                  JOIN ClubLocation CL ON CM.current_location_id = CL.location_id
+                  LEFT JOIN Player P ON CM.CMN = P.CMN
+                WHERE CM.state = 'active' 
+                  AND P.playerID IS NULL
+                ORDER BY CL.name, CM.CMN;
+                `
       },
   
       13: { 
