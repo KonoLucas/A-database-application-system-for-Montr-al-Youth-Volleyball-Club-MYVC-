@@ -71,27 +71,22 @@
         let selectedRowData = null;
         let allData = [];
 
-        // 1. Fetch table data
+        // 1. Fetch team data
         function fetchData() {
-            fetch('/api/club-locations')
-            .then(response => {
-            if (!response.ok) throw new Error("Network error");
-            return response.json();
-            })
-            .then(data => {
-                console.log("Fetched data:", data); // 确保数据正确
-                if (!Array.isArray(data.data)) {
-                    console.error("Expected an array but got:", data);
-                    return;
-                }
-                allData = data.data; // 存储实际的数组
-                displayData(data.data); // 只传递数组
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById('data').innerHTML =
-                    '<tr><td colspan="13">Failed to load data. Check console.</td></tr>';
-            });
+            fetch('/api/teams')
+                .then(function (response) {
+                    if (!response.ok) throw new Error("Network error");
+                    return response.json();
+                })
+                .then(function (data) {
+                    allData = data;
+                    displayData(data);
+                })
+                .catch(function (error) {
+                    console.error("Error:", error);
+                    document.getElementById('data').innerHTML =
+                        '<tr><td colspan="6">Failed to load data. Check console.</td></tr>';
+                });
         }
 
         // 2. Display data in the table
