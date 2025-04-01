@@ -73,7 +73,7 @@
 
         // 1. Fetch team data
         function fetchData() {
-            fetch('/api/teams')
+            fetch('/api/club-locations')
                 .then(function (response) {
                     if (!response.ok) throw new Error("Network error");
                     return response.json();
